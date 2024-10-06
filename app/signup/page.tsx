@@ -21,6 +21,7 @@ import { Separator } from '@/components/ui/separator'
 
 type FormData = {
   email: string
+  verificationCode: number
   password: string
   confirmPassword: string
 }
@@ -50,14 +51,9 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     try {
       const result = await signup(data.email, data.password)
-
-      if (result.success) {
-        toast.success(result.message)
-      } else {
-        toast.error(result.message)
-      }
-    } catch (error) {
-      console.error('예기치 못한 오류가 발생했습니다:', error)
+      toast.error(result.message)
+    } catch (error: any) {
+      toast.error(error.message)
     }
   }
 
@@ -71,13 +67,33 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-1">
-              <Input
-                placeholder="이메일"
-                type="email"
-                aria-label="이메일"
-                {...register('email')}
-              />
+              <div className="flex space-y-0 space-x-2">
+                <Input
+                  className="flex-1"
+                  placeholder="이메일"
+                  type="email"
+                  aria-label="이메일"
+                  {...register('email')}
+                />
+
+                <Button type="button" className="w-24">이메일 인증</Button>
+              </div>
               <p className="text-xs text-red-500">{errors.email?.message}</p>
+            </div>
+            
+            <div className="space-y-1">
+              <div className="flex space-y-0 space-x-2">
+                <Input
+                  className="flex-1"
+                  placeholder="인증번호"
+                  type="number"
+                  aria-label="인증번호"
+                  {...register('verificationCode')}
+                />
+
+                <Button type="button" className="w-24">인증번호 확인</Button>
+              </div>
+              <p className="text-xs text-red-500">{errors.verificationCode?.message}</p>
             </div>
 
             <div className="space-y-1">
