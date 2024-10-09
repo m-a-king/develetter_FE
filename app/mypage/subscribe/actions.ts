@@ -7,15 +7,11 @@ export const subscribe = async (
 ) => {
   try {
     console.log(items)
-    const response = await axios.post(
-      SUBSCRIBE_URL(),
-      items,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+    const response = await axios.post(SUBSCRIBE_URL(), items, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
       }
-    )
+    })
     response.data.message = '구독이 완료되었습니다.'
     return response.data
   } catch (error: any) {
