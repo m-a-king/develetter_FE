@@ -1,6 +1,6 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { SIGN_IN_URL, SIGN_OUT_URL } from '@/lib/apiUrls'
+import { SIGN_IN_URL } from '@/lib/apiUrls'
 
 export const login = async (email: string, password: string) => {
   try {
@@ -13,6 +13,7 @@ export const login = async (email: string, password: string) => {
 
     // 쿠키에 accessToken 설정
     Cookies.set('accessToken', token, { expires, path: '/' })
+    return token
   } catch (error: any) {
     throw new Error(
       error.response?.data?.message || '로그인 요청 중 오류가 발생했습니다.'
@@ -20,15 +21,7 @@ export const login = async (email: string, password: string) => {
   }
 }
 
-export const logout = async (accessToken: string) => {
-  try {
-    await axios.post(SIGN_OUT_URL(), { accessToken })
-
-    // 쿠키에서 accessToken 삭제
-    Cookies.remove('accessToken', { path: '/' })
-  } catch (error: any) {
-    throw new Error(
-      error.response?.data?.message || '로그아웃 요청 중 오류가 발생했습니다.'
-    )
-  }
+export const logout = () => {
+  // 쿠키에서 accessToken 삭제
+  Cookies.remove('accessToken', { path: '/' })
 }

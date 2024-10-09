@@ -11,6 +11,7 @@ export const verifyEmail = async (email: string) => {
     response.data.message = '이메일로 인증번호가 발송되었습니다.'
     return response.data
   } catch (error: any) {
+    console.error(error.response)
     throw new Error(
       error.response?.data?.message ||
         '이메일 인증 요청 중 오류가 발생했습니다.'
@@ -18,11 +19,11 @@ export const verifyEmail = async (email: string) => {
   }
 }
 
-export const verifyCode = async (email: string, verificationCode: number) => {
+export const verifyCode = async (email: string, verificationCode: string) => {
   try {
     const response = await axios.post(CHECK_CERTIFICATION_URL(), {
       email,
-      verificationCode
+      certificationNumber: verificationCode
     })
     response.data.message = '인증번호가 확인되었습니다.'
     return response.data
@@ -33,9 +34,17 @@ export const verifyCode = async (email: string, verificationCode: number) => {
   }
 }
 
-export const signup = async (email: string, password: string) => {
+export const signup = async (
+  email: string,
+  password: string,
+  verificationCode: string
+) => {
   try {
-    const response = await axios.post(SIGN_UP_URL(), { email, password })
+    const response = await axios.post(SIGN_UP_URL(), {
+      email,
+      password,
+      certificationNumber: verificationCode
+    })
     response.data.message = '회원가입이 완료되었습니다.'
     return response.data
   } catch (error: any) {

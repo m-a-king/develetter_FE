@@ -23,7 +23,7 @@ import { Separator } from '@/components/ui/separator'
 
 type FormData = {
   email: string
-  verificationCode: number
+  verificationCode: string
   password: string
   confirmPassword: string
 }
@@ -40,6 +40,7 @@ export default function SignupPage() {
       password: z
         .string()
         .min(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' }),
+      verificationCode: z.string(),
       confirmPassword: z.string()
     })
     .refine(data => data.password === data.confirmPassword, {
@@ -99,10 +100,10 @@ export default function SignupPage() {
       }
 
       clearErrors('email')
-      // const response = await verifyEmail(email)
+      const response = await verifyEmail(email)
       setIsCodeSent(true)
       setTimer(180)
-      // toast.success(response.message)
+      toast.success(response.message)
     } catch (error: any) {
       toast.error(error.message)
     }
@@ -111,25 +112,9 @@ export default function SignupPage() {
     try {
       const email = getValues('email')
       const verificationCode = getValues('verificationCode')
-
-      // 인증번호 형식이 유효한지 체크
-      const schema = z
-        .string()
-        .length(6, '인증번호는 6자리여야 합니다.')
-        .regex(/^\d+$/, '인증번호는 숫자만 포함해야 합니다.')
-      const result = schema.safeParse(verificationCode)
-      if (!result.success) {
-        setError('verificationCode', {
-          type: 'manual',
-          message: result.error.issues[0].message
-        })
-        return
-      }
-
-      clearErrors('verificationCode')
-      // const response = await verifyCode(email, verificationCode)
+      const response = await verifyCode(email, verificationCode)
       setIsVerified(true)
-      // toast.success(response.message)
+      toast.success(response.message)
     } catch (error: any) {
       toast.error(error.message)
     }
@@ -137,8 +122,12 @@ export default function SignupPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      // const response = await signup(data.email, data.password)
-      // toast.success(response.message)
+      const response = await signup(
+        data.email,
+        data.password,
+        data.verificationCode
+      )
+      toast.success(response.message)
       router.push('/login')
     } catch (error: any) {
       toast.error(error.message)
@@ -161,6 +150,7 @@ export default function SignupPage() {
                   placeholder="이메일"
                   type="email"
                   aria-label="이메일"
+                  readOnly={isCodeSent}
                   {...register('email')}
                 />
 
@@ -184,7 +174,6 @@ export default function SignupPage() {
                   <Input
                     className="flex-1"
                     placeholder="인증번호"
-                    type="number"
                     aria-label="인증번호"
                     readOnly={isVerified}
                     {...register('verificationCode')}

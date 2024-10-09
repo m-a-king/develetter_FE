@@ -3,7 +3,10 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
 
+import useStore from '@/store/useStore'
+import { subscribe } from './actions'
 import { Button } from '@/components/ui/button'
 import { Toggle } from '@/components/ui/toggle'
 import {
@@ -19,158 +22,217 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 
 const categories = [
   {
-    id: 'development',
-    label: '개발',
+    id: 'jobNames',
+    label: '직무명',
     items: [
-      { id: 'javascript', label: 'JavaScript' },
-      { id: 'typescript', label: 'TypeScript' },
-      { id: 'nodejs', label: 'Node.js' },
-      { id: 'react', label: 'React' },
-      { id: 'nextjs', label: 'Next.js' },
-      { id: 'python', label: 'Python' },
-      { id: 'django', label: 'Django' },
-      { id: 'flask', label: 'Flask' },
-      { id: 'java', label: 'Java' },
-      { id: 'spring', label: 'Spring' },
-      { id: 'kotlin', label: 'Kotlin' },
-      { id: 'go', label: 'Go' },
-      { id: 'ruby', label: 'Ruby' },
-      { id: 'rails', label: 'Rails' },
-      { id: 'php', label: 'PHP' },
-      { id: 'laravel', label: 'Laravel' },
-      { id: 'csharp', label: 'C#' },
-      { id: 'dotnet', label: '.NET' },
-      { id: 'cplusplus', label: 'C++' },
-      { id: 'rust', label: 'Rust' },
-      { id: 'scala', label: 'Scala' },
-      { id: 'elixir', label: 'Elixir' },
-      { id: 'swift', label: 'Swift' },
-      { id: 'objective-c', label: 'Objective-C' },
-      { id: 'android', label: 'Android 개발' }
+      { id: 'software-engineer', label: '소프트웨어 엔지니어' },
+      { id: 'data-scientist', label: '데이터 사이언티스트' },
+      { id: 'product-manager', label: '프로덕트 매니저' },
+      { id: 'ux-designer', label: 'UX 디자이너' },
+      { id: 'business-analyst', label: '비즈니스 애널리스트' },
+      { id: 'devops-engineer', label: 'DevOps 엔지니어' },
+      { id: 'systems-administrator', label: '시스템 관리자' },
+      { id: 'quality-assurance', label: '품질 보증 엔지니어' },
+      { id: 'cyber-security-analyst', label: '사이버 보안 분석가' },
+      { id: 'network-engineer', label: '네트워크 엔지니어' },
+      { id: 'database-administrator', label: '데이터베이스 관리자' },
+      { id: 'cloud-engineer', label: '클라우드 엔지니어' },
+      { id: 'ai-engineer', label: 'AI 엔지니어' },
+      { id: 'ml-engineer', label: '머신러닝 엔지니어' },
+      { id: 'frontend-developer', label: '프론트엔드 개발자' },
+      { id: 'backend-developer', label: '백엔드 개발자' },
+      { id: 'fullstack-developer', label: '풀스택 개발자' },
+      { id: 'mobile-developer', label: '모바일 개발자' },
+      { id: 'game-developer', label: '게임 개발자' },
+      { id: 'blockchain-developer', label: '블록체인 개발자' }
     ]
   },
   {
-    id: 'planning',
-    label: '기획',
+    id: 'locationNames',
+    label: '위치',
     items: [
-      { id: 'market-research', label: '시장 조사' },
-      { id: 'user-flow', label: '사용자 흐름' },
-      { id: 'wireframe', label: '와이어프레임' },
-      { id: 'project-management', label: '프로젝트 관리' },
-      { id: 'requirement-analysis', label: '요구사항 분석' },
-      { id: 'stakeholder-management', label: '이해관계자 관리' },
-      { id: 'timeline-planning', label: '타임라인 기획' },
-      { id: 'risk-management', label: '위험 관리' },
-      { id: 'resource-allocation', label: '자원 할당' },
-      { id: 'kpi-setting', label: 'KPI 설정' },
-      { id: 'agile-methodology', label: '애자일 방법론' },
-      { id: 'scrum', label: '스크럼' },
-      { id: 'kanban', label: '칸반' },
-      { id: 'waterfall', label: '폭포수 모델' },
-      { id: 'business-analysis', label: '비즈니스 분석' },
-      { id: 'budgeting', label: '예산 관리' },
-      { id: 'milestone-setting', label: '마일스톤 설정' },
-      { id: 'feature-prioritization', label: '기능 우선순위 설정' },
-      { id: 'roadmap-creation', label: '로드맵 작성' },
-      { id: 'customer-feedback', label: '고객 피드백 수집' },
-      { id: 'competitive-analysis', label: '경쟁 분석' },
-      { id: 'innovation-planning', label: '혁신 기획' },
-      { id: 'persona-creation', label: '페르소나 작성' },
-      { id: 'product-lifecycle', label: '제품 수명주기 관리' }
+      { id: 'seoul', label: '서울' },
+      { id: 'busan', label: '부산' },
+      { id: 'incheon', label: '인천' },
+      { id: 'daegu', label: '대구' },
+      { id: 'gwangju', label: '광주' },
+      { id: 'daejeon', label: '대전' },
+      { id: 'ulsan', label: '울산' },
+      { id: 'jeju', label: '제주' },
+      { id: 'suwon', label: '수원' },
+      { id: 'changwon', label: '창원' },
+      { id: 'seongnam', label: '성남' },
+      { id: 'anyang', label: '안양' },
+      { id: 'pohang', label: '포항' },
+      { id: 'jeonju', label: '전주' },
+      { id: 'gimhae', label: '김해' },
+      { id: 'yeosu', label: '여수' },
+      { id: 'cheongju', label: '청주' },
+      { id: 'cheonju', label: '천안' },
+      { id: 'gumi', label: '구미' },
+      { id: 'gunsan', label: '군산' }
     ]
   },
   {
-    id: 'design',
-    label: '디자인',
+    id: 'jobTypeNames',
+    label: '직무 유형',
     items: [
-      { id: 'ui-ux', label: 'UI/UX 디자인' },
-      { id: 'figma', label: 'Figma' },
-      { id: 'adobe-xd', label: 'Adobe XD' },
-      { id: 'sketch', label: 'Sketch' },
-      { id: 'prototyping', label: '프로토타이핑' },
-      { id: 'graphic-design', label: '그래픽 디자인' },
-      { id: 'illustrator', label: 'Illustrator' },
-      { id: 'photoshop', label: 'Photoshop' },
-      { id: 'indesign', label: 'InDesign' },
-      { id: 'responsive-design', label: '반응형 디자인' },
-      { id: 'interaction-design', label: '인터랙션 디자인' },
-      { id: 'web-design', label: '웹 디자인' },
-      { id: 'mobile-design', label: '모바일 디자인' },
-      { id: 'typography', label: '타이포그래피' },
-      { id: 'color-theory', label: '색 이론' },
-      { id: 'branding', label: '브랜딩 디자인' },
-      { id: 'motion-design', label: '모션 디자인' },
-      { id: '3d-design', label: '3D 디자인' },
-      { id: 'animation', label: '애니메이션' },
-      { id: 'icon-design', label: '아이콘 디자인' },
-      { id: 'layout-design', label: '레이아웃 디자인' },
-      { id: 'design-systems', label: '디자인 시스템' },
+      { id: 'full-time', label: '정규직' },
+      { id: 'part-time', label: '파트타임' },
+      { id: 'contract', label: '계약직' },
+      { id: 'internship', label: '인턴십' },
+      { id: 'freelance', label: '프리랜서' },
+      { id: 'temporary', label: '임시직' },
+      { id: 'remote', label: '원격근무' },
+      { id: 'on-site', label: '현장근무' },
+      { id: 'shift-work', label: '교대 근무' },
+      { id: 'flexible-hours', label: '유연근무제' },
+      { id: 'commission-based', label: '성과급제' },
+      { id: 'hourly-paid', label: '시급제' },
+      { id: 'volunteer', label: '자원봉사' },
+      { id: 'seasonal', label: '계절직' },
+      { id: 'permanent', label: '정규직' },
+      { id: 'rotational', label: '순환 근무' },
+      { id: 'fixed-term', label: '기간제' },
+      { id: 'executive', label: '임원' },
+      { id: 'consultant', label: '컨설턴트' },
+      { id: 'trainee', label: '수습생' }
+    ]
+  },
+  {
+    id: 'industryNames',
+    label: '산업',
+    items: [
+      { id: 'it', label: '정보 기술(IT)' },
+      { id: 'finance', label: '금융' },
+      { id: 'healthcare', label: '헬스케어' },
+      { id: 'manufacturing', label: '제조업' },
+      { id: 'education', label: '교육' },
+      { id: 'real-estate', label: '부동산' },
+      { id: 'retail', label: '소매업' },
+      { id: 'transportation', label: '운송업' },
+      { id: 'telecommunications', label: '통신' },
+      { id: 'agriculture', label: '농업' },
+      { id: 'construction', label: '건설' },
+      { id: 'entertainment', label: '엔터테인먼트' },
+      { id: 'hospitality', label: '숙박 및 관광' },
+      { id: 'energy', label: '에너지' },
+      { id: 'automotive', label: '자동차' },
+      { id: 'food-and-beverage', label: '식음료' },
+      { id: 'pharmaceuticals', label: '제약' },
+      { id: 'mining', label: '광업' },
+      { id: 'government', label: '공공' },
+      { id: 'nonprofit', label: '비영리' }
+    ]
+  },
+  {
+    id: 'educationLevelNames',
+    label: '학력 요건',
+    items: [
+      { id: 'highschool', label: '고등학교 졸업' },
+      { id: 'associate-degree', label: '전문학사' },
+      { id: 'bachelor-degree', label: '학사 학위' },
+      { id: 'master-degree', label: '석사 학위' },
+      { id: 'doctorate-degree', label: '박사 학위' },
+      { id: 'no-degree-required', label: '학력 무관' },
+      { id: 'certification', label: '자격증' },
+      { id: 'professional-license', label: '전문 면허' },
+      { id: 'diploma', label: '졸업장' },
+      { id: 'vocational-training', label: '직업 훈련' },
+      { id: 'technical-school', label: '기술학교' },
+      { id: 'professional-degree', label: '전문학위' },
+      { id: 'post-doctoral', label: '포스트 닥터' },
+      { id: 'short-course', label: '단기 과정' },
+      { id: 'online-degree', label: '온라인 학위' },
+      { id: 'equivalent-experience', label: '동등한 경험' },
+      { id: 'international-certification', label: '국제 자격증' },
+      { id: 'continuing-education', label: '계속 교육' },
+      { id: 'trade-school', label: '직업 학교' },
+      { id: 'apprenticeship', label: '견습 과정' }
+    ]
+  },
+  {
+    id: 'blogKeywords',
+    label: '블로그 키워드',
+    items: [
+      { id: 'web-development', label: '웹 개발' },
+      { id: 'career-tips', label: '커리어 팁' },
+      { id: 'coding-best-practices', label: '코딩 베스트 프랙티스' },
       { id: 'design-thinking', label: '디자인 사고' },
-      { id: 'accessibility-design', label: '접근성 디자인' }
-    ]
-  },
-  {
-    id: 'marketing',
-    label: '마케팅',
-    items: [
-      { id: 'seo', label: '검색 엔진 최적화(SEO)' },
-      { id: 'content-marketing', label: '콘텐츠 마케팅' },
-      { id: 'social-media', label: '소셜 미디어 마케팅' },
-      { id: 'email-marketing', label: '이메일 마케팅' },
-      { id: 'branding', label: '브랜딩' },
-      { id: 'paid-advertising', label: '유료 광고' },
-      { id: 'influencer-marketing', label: '인플루언서 마케팅' },
-      { id: 'affiliate-marketing', label: '제휴 마케팅' },
-      { id: 'content-creation', label: '콘텐츠 제작' },
-      { id: 'copywriting', label: '카피라이팅' },
-      { id: 'video-marketing', label: '비디오 마케팅' },
-      { id: 'pr', label: '홍보(PR)' },
-      { id: 'event-marketing', label: '이벤트 마케팅' },
-      { id: 'community-management', label: '커뮤니티 관리' },
-      { id: 'growth-hacking', label: '성장 해킹' },
-      { id: 'crm', label: '고객 관계 관리(CRM)' },
-      { id: 'lead-generation', label: '리드 생성' },
-      { id: 'analytics', label: '분석 및 리포트' },
-      { id: 'conversion-optimization', label: '전환율 최적화' },
-      { id: 'customer-retention', label: '고객 유지' },
-      { id: 'ecommerce-marketing', label: '전자상거래 마케팅' },
-      { id: 'product-marketing', label: '제품 마케팅' },
-      { id: 'brand-strategy', label: '브랜드 전략' },
-      { id: 'market-research', label: '시장 조사' }
+      { id: 'entrepreneurship', label: '기업가 정신' },
+      { id: 'project-management', label: '프로젝트 관리' },
+      { id: 'productivity-hacks', label: '생산성 팁' },
+      { id: 'remote-work', label: '원격 근무' },
+      { id: 'self-improvement', label: '자기계발' },
+      { id: 'startup', label: '스타트업' },
+      { id: 'technology-trends', label: '기술 트렌드' },
+      { id: 'freelancing', label: '프리랜싱' },
+      { id: 'digital-marketing', label: '디지털 마케팅' },
+      { id: 'data-science', label: '데이터 사이언스' },
+      { id: 'ai-ml', label: 'AI & 머신러닝' },
+      { id: 'cybersecurity', label: '사이버 보안' },
+      { id: 'blockchain', label: '블록체인' },
+      { id: 'career-development', label: '커리어 개발' },
+      { id: 'coding-interview', label: '코딩 인터뷰' },
+      { id: 'personal-finance', label: '개인 재무 관리' }
     ]
   }
 ] as const
 
 const displayFormSchema = z.object({
-  items: z.array(z.string()).min(1, '최소 한 개의 항목을 선택해야 합니다.')
+  jobNames: z.array(z.string()).optional(),
+  locationNames: z.array(z.string()).optional(),
+  jobTypeNames: z.array(z.string()).optional(),
+  industryNames: z.array(z.string()).optional(),
+  educationLevelNames: z.array(z.string()).optional(),
+  blogKeywords: z.array(z.string()).optional()
 })
 
 type DisplayFormValues = z.infer<typeof displayFormSchema>
 
 const defaultValues: Partial<DisplayFormValues> = {
-  items: []
+  jobNames: [],
+  locationNames: [],
+  jobTypeNames: [],
+  industryNames: [],
+  educationLevelNames: [],
+  blogKeywords: []
 }
 
 export default function SubscribeForm() {
+  const accessToken = useStore(state => state.accessToken)
+
   const form = useForm<DisplayFormValues>({
     resolver: zodResolver(displayFormSchema),
     defaultValues: defaultValues
   })
 
   const { setValue, handleSubmit, watch } = form
-  const selectedItems = watch('items')
+  const selectedItems = watch()
 
-  const toggleItem = (itemId: string) => {
-    const currentItems = selectedItems || []
+  const toggleItem = (categoryId: keyof DisplayFormValues, itemId: string) => {
+    const currentItems = selectedItems[categoryId] || []
     const updatedItems = currentItems.includes(itemId)
       ? currentItems.filter(id => id !== itemId)
       : [...currentItems, itemId]
 
-    setValue('items', updatedItems)
+    setValue(categoryId, updatedItems)
   }
 
-  function onSubmit(data: DisplayFormValues) {
-    console.log(data.items)
+  const onSubmit = async (data: DisplayFormValues) => {
+    try {
+      if (!accessToken) return
+      const formattedData = Object.fromEntries(
+        Object.entries(data).map(([key, value]) => [
+          key,
+          value?.join(',') || ''
+        ])
+      )
+      const response = await subscribe(accessToken, formattedData)
+      toast.success(response.message)
+    } catch (error: any) {
+      toast.error(error.message)
+    }
   }
 
   return (
@@ -178,7 +240,7 @@ export default function SubscribeForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="items"
+          name="jobNames"
           render={() => (
             <FormItem>
               <div className="mb-4">
@@ -192,7 +254,7 @@ export default function SubscribeForm() {
               </div>
               <FormField
                 control={form.control}
-                name="items"
+                name="jobNames"
                 render={() => {
                   return (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
@@ -212,9 +274,14 @@ export default function SubscribeForm() {
                                     <Toggle
                                       key={item.id}
                                       variant="outline"
-                                      pressed={selectedItems.includes(item.id)}
+                                      pressed={selectedItems[
+                                        category.id
+                                      ]?.includes(item.label)}
                                       onPressedChange={() =>
-                                        toggleItem(item.id)
+                                        toggleItem(
+                                          category.id as keyof DisplayFormValues,
+                                          item.label
+                                        )
                                       }
                                     >
                                       {item.label}

@@ -1,6 +1,16 @@
+'use client'
+
+import { useRouter } from 'next/router'
+
 import { Button } from '@/components/ui/button'
 
 export default function MainPage() {
+  const router = useRouter()
+
+  const handleSubscribeClick = () => {
+    router.push('/mypage')
+  }
+
   return (
     <div className="container max-w-5xl h-full flex flex-col items-center justify-center space-y-12 text-center break-keep">
       <header className="space-y-6">
@@ -15,7 +25,7 @@ export default function MainPage() {
       </header>
 
       <section className="space-y-4 max-w-md">
-        <Button className="w-full px-6 py-3">구독하기</Button>
+        <Button onClick={handleSubscribeClick} className="w-full px-6 py-3">구독하기</Button>
 
         <p className="text-xs text-gray-500 dark:text-gray-400">
           주 1~2회 발송, 언제든 구독 취소 가능합니다. 개인정보는 안전하게
