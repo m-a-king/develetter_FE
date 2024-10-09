@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { User as UserIcon } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
-import { logout, User } from '@/app/login/actions'
+import { User } from '@/app/login/actions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -19,7 +20,7 @@ interface UserProps {
 
 export function Account({ user }: UserProps) {
   const handleLogout = async () => {
-    // await logout()
+    await signOut({callbackUrl: '/'})
   }
 
   return (
@@ -39,7 +40,7 @@ export function Account({ user }: UserProps) {
               className="overflow-hidden rounded-full"
             />
           ) : (
-            <UserIcon fill="black" className="size-4" />
+            <UserIcon fill="black" className="size-4"/>
           )}
         </Button>
       </DropdownMenuTrigger>
