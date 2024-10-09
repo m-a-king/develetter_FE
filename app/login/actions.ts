@@ -1,41 +1,27 @@
-// import { auth, signIn, signOut } from '@/lib/auth'
+import axios from 'axios'
+import Cookies from 'js-cookie'
+import { SIGN_IN_URL } from '@/lib/apiUrls'
 
-export interface User {
-  name?: string | null
-  email?: string | null
-  image?: string | null
-}
+export const login = async (email: string, password: string) => {
+  try {
+    const response = await axios.post(SIGN_IN_URL(), { email, password })
+    const { token, expirationTime } = response.data
 
-let currentUser: User | null = null
+    // 현재 시간 (밀리초 단위) 계산 및 만료 시간 설정
+    const now = new Date().getTime()
+    const expires = new Date(now + expirationTime * 1000)
 
-export async function getUser(): Promise<User | null> {
-  return currentUser
-}
-
-export async function login(email: string, password: string) {
-  if (email === 'test@example.com' && password === 'password') {
-    currentUser = { email, name: 'Test User' }
-    return { success: true, message: '로그인에 성공하였습니다.' }
-  } else {
-    return { success: false, message: '이메일 또는 비밀번호가 잘못되었습니다.' }
+    // 쿠키에 accessToken 설정
+    Cookies.set('accessToken', token, { expires, path: '/' })
+    return token
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || '로그인 요청 중 오류가 발생했습니다.'
+    )
   }
 }
 
-export async function logout() {
-  currentUser = null
+export const logout = () => {
+  // 쿠키에서 accessToken 삭제
+  Cookies.remove('accessToken', { path: '/' })
 }
-
-/*
-export async function getUser(): Promise<User | null> {
-  const session = await auth()
-  return session?.user || null
-}
-
-export async function login(provider: string, options: { redirectTo: string }) {
-  await signIn(provider, options)
-}
-
-export async function logout() {
-  await signOut()
-}
-*/

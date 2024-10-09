@@ -9,3 +9,4 @@ export const EMAIL_CERTIFICATION_URL = () =>
   `${API_DOMAIN}/auth/email-certification`
 export const CHECK_CERTIFICATION_URL = () =>
   `${API_DOMAIN}/auth/check-certification`
+export const SUBSCRIBE_URL = () => `${API_DOMAIN}/userfilter`

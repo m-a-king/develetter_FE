@@ -1,11 +1,13 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { User as UserIcon } from 'lucide-react'
+import Cookies from 'js-cookie'
 
-import { logout, User } from '@/app/login/actions'
-import { useTheme } from '@/lib/hooks/use-theme'
+import useStore from '@/store/useStore'
+import { logout } from '@/app/login/actions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -13,15 +15,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
-interface UserProps {
-  user: User | null
-}
+export function Account() {
+  const router = useRouter()
+  const accessToken = useStore(state => state.accessToken)
+  const setAccessToken = useStore(state => state.setAccessToken)
+  const clearAccessToken = useStore(state => state.clearAccessToken)
 
-export function Account({ user }: UserProps) {
-  const { theme } = useTheme()
+  useEffect(() => {
+    const token = Cookies.get('accessToken')
+    if (token) {
+      setAccessToken(token)
+    }
+  }, [setAccessToken])
+
   const handleLogout = async () => {
-    await logout()
+    try {
+      logout()
+      clearAccessToken()
+      router.push('/')
+    } catch (error: any) {
+      toast.error(error.message)
+    }
   }
 
   return (
@@ -32,28 +48,14 @@ export function Account({ user }: UserProps) {
           size="icon"
           className="overflow-hidden rounded-full"
         >
-          {user?.image ? (
-            <Image
-              src={user.image}
-              width={36}
-              height={36}
-              alt="Avatar"
-              className="overflow-hidden rounded-full"
-            />
-          ) : (
-            <UserIcon
-              fill={theme === 'dark' ? 'white' : 'black'}
-              className="size-4"
-            />
-          )}
+          <UserIcon fill="black" className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {user ? (
+        {accessToken ? (
           <>
             <DropdownMenuItem>
-              <Link href="/mypage">마이페이지</Link>{' '}
-              {/* 마이페이지 버튼 추가 */}
+              <Link href="/mypage">마이페이지</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <button onClick={handleLogout}>로그아웃</button>
