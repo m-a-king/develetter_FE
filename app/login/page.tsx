@@ -3,6 +3,7 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -32,6 +33,8 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
+  const router = useRouter()
+
   const {
     register,
     handleSubmit,
@@ -41,12 +44,12 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (data: FormData) => {
-    const result = await login(data.email, data.password)
-
-    if (result.success) {
-      toast.success(result.message)
-    } else {
-      toast.error(result.message)
+    try {
+      const response = await login(data.email, data.password)
+      toast.success(response.message)
+      router.push('/')
+    } catch (error: any) {
+      toast.error(error.message)
     }
   }
 

@@ -3,11 +3,13 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
-import { signup } from '@/app/signup/actions'
+import { verifyEmail, verifyCode, signup } from '@/app/signup/actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,32 +28,118 @@ type FormData = {
   confirmPassword: string
 }
 
-const schema = z
-  .object({
-    email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
-    password: z
-      .string()
-      .min(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' }),
-    confirmPassword: z.string()
-  })
-  .refine(data => data.password === data.confirmPassword, {
-    message: '비밀번호가 일치하지 않습니다.',
-    path: ['confirmPassword']
-  })
-
 export default function LoginPage() {
+  const [isCodeSent, setIsCodeSent] = useState(false)
+  const [isVerified, setIsVerified] = useState(false)
+  const [timer, setTimer] = useState(0)
+  const router = useRouter()
+
+  const schema = z
+    .object({
+      email: z.string().email({ message: '유효한 이메일을 입력하세요.' }),
+      password: z
+        .string()
+        .min(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' }),
+      confirmPassword: z.string()
+    })
+    .refine(data => data.password === data.confirmPassword, {
+      message: '비밀번호가 일치하지 않습니다.',
+      path: ['confirmPassword']
+    })
+    .refine(() => isCodeSent, {
+      message: '이메일 인증을 완료해주세요.',
+      path: ['email']
+    })
+    .refine(() => isVerified, {
+      message: '인증번호 확인을 완료해주세요.',
+      path: ['verificationCode']
+    })
+
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
+    getValues,
+    setError,
+    clearErrors
   } = useForm<FormData>({
     resolver: zodResolver(schema)
   })
 
+  useEffect(() => {
+    if (!isCodeSent || isVerified || timer <= 0) return
+
+    const interval = setInterval(() => {
+      setTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          setIsCodeSent(false)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isCodeSent, isVerified, timer])
+
+  const handleEmailVerification = async () => {
+    try {
+      const email = getValues('email')
+
+      // 이메일 형식이 유효한지 체크
+      const schema = z.string().email('유효한 이메일을 입력하세요.')
+      const result = schema.safeParse(email)
+      if (!result.success) {
+        setError('email', {
+          type: 'manual',
+          message: result.error.issues[0].message
+        })
+        return
+      }
+
+      clearErrors('email')
+      // const response = await verifyEmail(email)
+      setIsCodeSent(true)
+      setTimer(180)
+      // toast.success(response.message)
+    } catch (error: any) {
+      toast.error(error.message)
+    }
+  }
+  const handleVerificationCode = async () => {
+    try {
+      const email = getValues('email')
+      const verificationCode = getValues('verificationCode')
+
+      // 인증번호 형식이 유효한지 체크
+      const schema = z
+        .string()
+        .length(6, '인증번호는 6자리여야 합니다.')
+        .regex(/^\d+$/, '인증번호는 숫자만 포함해야 합니다.')
+      const result = schema.safeParse(verificationCode)
+      if (!result.success) {
+        setError('verificationCode', {
+          type: 'manual',
+          message: result.error.issues[0].message
+        })
+        return
+      }
+
+      clearErrors('verificationCode')
+      // const response = await verifyCode(email, verificationCode)
+      setIsVerified(true)
+      // toast.success(response.message)
+    } catch (error: any) {
+      toast.error(error.message)
+    }
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
-      const result = await signup(data.email, data.password)
-      toast.error(result.message)
+      // const response = await signup(data.email, data.password)
+      // toast.success(response.message)
+      router.push('/login')
     } catch (error: any) {
       toast.error(error.message)
     }
@@ -76,31 +164,46 @@ export default function LoginPage() {
                   {...register('email')}
                 />
 
-                <Button type="button" className="w-24">
-                  이메일 인증
+                <Button
+                  type="button"
+                  className="w-24"
+                  disabled={isCodeSent}
+                  onClick={handleEmailVerification}
+                >
+                  {isCodeSent && !isVerified
+                    ? `${Math.floor(timer / 60)}분 ${timer % 60}초`
+                    : '이메일 인증'}
                 </Button>
               </div>
               <p className="text-xs text-red-500">{errors.email?.message}</p>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex space-y-0 space-x-2">
-                <Input
-                  className="flex-1"
-                  placeholder="인증번호"
-                  type="number"
-                  aria-label="인증번호"
-                  {...register('verificationCode')}
-                />
+            {isCodeSent && (
+              <div className="space-y-1">
+                <div className="flex space-y-0 space-x-2">
+                  <Input
+                    className="flex-1"
+                    placeholder="인증번호"
+                    type="number"
+                    aria-label="인증번호"
+                    readOnly={isVerified}
+                    {...register('verificationCode')}
+                  />
 
-                <Button type="button" className="w-24">
-                  인증번호 확인
-                </Button>
+                  <Button
+                    type="button"
+                    className="w-24"
+                    disabled={isVerified}
+                    onClick={handleVerificationCode}
+                  >
+                    인증번호 확인
+                  </Button>
+                </div>
+                <p className="text-xs text-red-500">
+                  {errors.verificationCode?.message}
+                </p>
               </div>
-              <p className="text-xs text-red-500">
-                {errors.verificationCode?.message}
-              </p>
-            </div>
+            )}
 
             <div className="space-y-1">
               <Input

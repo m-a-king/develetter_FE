@@ -19,7 +19,7 @@ interface UserProps {
 
 export function Account({ user }: UserProps) {
   const handleLogout = async () => {
-    await logout()
+    // await logout()
   }
 
   return (
@@ -47,8 +47,7 @@ export function Account({ user }: UserProps) {
         {user ? (
           <>
             <DropdownMenuItem>
-              <Link href="/mypage">마이페이지</Link>{' '}
-              {/* 마이페이지 버튼 추가 */}
+              <Link href="/mypage">마이페이지</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <button onClick={handleLogout}>로그아웃</button>
