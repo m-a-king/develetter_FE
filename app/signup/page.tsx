@@ -28,7 +28,7 @@ type FormData = {
   confirmPassword: string
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [isCodeSent, setIsCodeSent] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
   const [timer, setTimer] = useState(0)

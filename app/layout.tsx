@@ -30,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex flex-col h-[calc(100vh_-_theme(spacing.32))] overflow-hidden">
+            <main className="flex flex-col h-[calc(100vh_-_theme(spacing.32))] overflow-x-hidden overflow-y-auto">
               {children}
             </main>
             <Footer />

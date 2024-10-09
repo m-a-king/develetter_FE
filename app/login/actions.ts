@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {SIGN_IN_URL} from '@/lib/apiUrls'
+import { SIGN_IN_URL } from '@/lib/apiUrls'
 
 export interface User {
   name?: string | null
