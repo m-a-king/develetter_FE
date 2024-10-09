@@ -5,7 +5,6 @@ import Image from 'next/image'
 import { User as UserIcon } from 'lucide-react'
 
 import { logout, User } from '@/app/login/actions'
-import { useTheme } from '@/lib/hooks/use-theme'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -19,7 +18,6 @@ interface UserProps {
 }
 
 export function Account({ user }: UserProps) {
-  const { theme } = useTheme()
   const handleLogout = async () => {
     await logout()
   }
@@ -41,10 +39,7 @@ export function Account({ user }: UserProps) {
               className="overflow-hidden rounded-full"
             />
           ) : (
-            <UserIcon
-              fill={theme === 'dark' ? 'white' : 'black'}
-              className="size-4"
-            />
+            <UserIcon fill="black" className="size-4" />
           )}
         </Button>
       </DropdownMenuTrigger>

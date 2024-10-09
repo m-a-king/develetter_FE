@@ -76,11 +76,13 @@ export default function LoginPage() {
                   {...register('email')}
                 />
 
-                <Button type="button" className="w-24">이메일 인증</Button>
+                <Button type="button" className="w-24">
+                  이메일 인증
+                </Button>
               </div>
               <p className="text-xs text-red-500">{errors.email?.message}</p>
             </div>
-            
+
             <div className="space-y-1">
               <div className="flex space-y-0 space-x-2">
                 <Input
@@ -91,9 +93,13 @@ export default function LoginPage() {
                   {...register('verificationCode')}
                 />
 
-                <Button type="button" className="w-24">인증번호 확인</Button>
+                <Button type="button" className="w-24">
+                  인증번호 확인
+                </Button>
               </div>
-              <p className="text-xs text-red-500">{errors.verificationCode?.message}</p>
+              <p className="text-xs text-red-500">
+                {errors.verificationCode?.message}
+              </p>
             </div>
 
             <div className="space-y-1">
