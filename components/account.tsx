@@ -1,11 +1,11 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { User as UserIcon } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import Cookies from 'js-cookie';
 
-import { User } from '@/app/login/actions'
+import { logout } from '@/app/login/actions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -13,14 +13,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { toast } from 'sonner'
 
-interface UserProps {
-  user: User | null
-}
+export function Account() {
+  const router = useRouter()
+  const accessToken = Cookies.get('accessToken') || '';
 
-export function Account({ user }: UserProps) {
   const handleLogout = async () => {
-    await signOut({callbackUrl: '/'})
+    try {
+      await logout(accessToken)
+      router.push('/')
+    } catch (error: any) {
+      toast.error(error.message)
+    }
   }
 
   return (
@@ -31,21 +36,11 @@ export function Account({ user }: UserProps) {
           size="icon"
           className="overflow-hidden rounded-full"
         >
-          {user?.image ? (
-            <Image
-              src={user.image}
-              width={36}
-              height={36}
-              alt="Avatar"
-              className="overflow-hidden rounded-full"
-            />
-          ) : (
-            <UserIcon fill="black" className="size-4"/>
-          )}
+          <UserIcon fill="black" className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {user ? (
+        {accessToken ? (
           <>
             <DropdownMenuItem>
               <Link href="/mypage">마이페이지</Link>

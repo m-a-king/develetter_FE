@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { signIn } from 'next-auth/react'
 
+import { login } from '@/app/login/actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -45,14 +45,10 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await signIn('credentials', {
-        redirect: false,
-        email: data.email,
-        password: data.password
-      })
+      await login(data.email, data.password)
       router.push('/')
     } catch (error: any) {
-      toast.error('로그인에 실패했습니다.')
+      toast.error(error.message)
     }
   }
 
