@@ -1,27 +1,17 @@
-import axios from 'axios'
-import Cookies from 'js-cookie'
-import { SIGN_IN_URL } from '@/lib/apiUrls'
+import { signIn } from 'next-auth/react'
+import { AuthError } from 'next-auth'
 
-export const login = async (email: string, password: string) => {
+export async function login(email: string, password: string) {
   try {
-    const response = await axios.post(SIGN_IN_URL(), { email, password })
-    const { token, expirationTime } = response.data
-
-    // 현재 시간 (밀리초 단위) 계산 및 만료 시간 설정
-    const now = new Date().getTime()
-    const expires = new Date(now + expirationTime * 1000)
-
-    // 쿠키에 accessToken 설정
-    Cookies.set('accessToken', token, { expires, path: '/' })
-    return token
-  } catch (error: any) {
-    throw new Error(
-      error.response?.data?.message || '로그인 요청 중 오류가 발생했습니다.'
-    )
+    await signIn('credentials', {
+      redirect: true,
+      email,
+      password
+    })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      throw new Error('로그인 요청 중 오류가 발생했습니다.')
+    }
+    throw error
   }
-}
-
-export const logout = () => {
-  // 쿠키에서 accessToken 삭제
-  Cookies.remove('accessToken', { path: '/' })
 }

@@ -8,7 +8,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
 
-import useStore from '@/store/useStore'
 import { login } from '@/app/login/actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -34,7 +33,6 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const setAccessToken = useStore(state => state.setAccessToken)
   const router = useRouter()
 
   const {
@@ -47,8 +45,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const token = await login(data.email, data.password)
-      setAccessToken(token)
+      await login(data.email, data.password)
       router.push('/')
     } catch (error: any) {
       toast.error(error.message)

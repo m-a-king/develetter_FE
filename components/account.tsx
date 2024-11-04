@@ -1,13 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { User as UserIcon } from 'lucide-react'
-import Cookies from 'js-cookie'
+import { signOut, useSession } from 'next-auth/react'
 
-import useStore from '@/store/useStore'
-import { logout } from '@/app/login/actions'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -19,21 +16,12 @@ import { toast } from 'sonner'
 
 export function Account() {
   const router = useRouter()
-  const accessToken = useStore(state => state.accessToken)
-  const setAccessToken = useStore(state => state.setAccessToken)
-  const clearAccessToken = useStore(state => state.clearAccessToken)
-
-  useEffect(() => {
-    const token = Cookies.get('accessToken')
-    if (token) {
-      setAccessToken(token)
-    }
-  }, [setAccessToken])
+  const { data: session } = useSession()
+  console.log(session)
 
   const handleLogout = async () => {
     try {
-      logout()
-      clearAccessToken()
+      await signOut()
       router.push('/')
     } catch (error: any) {
       toast.error(error.message)
@@ -52,7 +40,7 @@ export function Account() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        {accessToken ? (
+        {session ? (
           <>
             <DropdownMenuItem>
               <Link href="/mypage">마이페이지</Link>
@@ -67,7 +55,7 @@ export function Account() {
               <Link href="/login">로그인</Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Link href="/signup">회원가입</Link> {/* 회원가입 버튼 추가 */}
+              <Link href="/signup">회원가입</Link>
             </DropdownMenuItem>
           </>
         )}
