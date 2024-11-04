@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { User as UserIcon } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 
@@ -15,14 +15,12 @@ import {
 import { toast } from 'sonner'
 
 export function Account() {
-  const router = useRouter()
   const { data: session } = useSession()
   console.log(session)
 
   const handleLogout = async () => {
     try {
       await signOut()
-      router.push('/')
     } catch (error: any) {
       toast.error(error.message)
     }
@@ -36,7 +34,17 @@ export function Account() {
           size="icon"
           className="overflow-hidden rounded-full"
         >
-          <UserIcon fill="black" className="size-4" />
+          {session?.user?.image ? (
+            <Image
+              src={session.user.image}
+              width={36}
+              height={36}
+              alt="Avatar"
+              className="overflow-hidden rounded-full"
+            />
+          ) : (
+            <UserIcon fill="black" className="size-4" />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

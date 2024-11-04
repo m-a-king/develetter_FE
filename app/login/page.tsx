@@ -3,10 +3,10 @@
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { signIn } from 'next-auth/react'
 
 import { login } from '@/app/login/actions'
 import { Input } from '@/components/ui/input'
@@ -33,8 +33,6 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const router = useRouter()
-
   const {
     register,
     handleSubmit,
@@ -46,7 +44,6 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     try {
       await login(data.email, data.password)
-      router.push('/')
     } catch (error: any) {
       toast.error(error.message)
     }
@@ -94,6 +91,18 @@ export default function LoginPage() {
           </div>
 
           <div className="flex justify-center gap-4">
+            <Button
+              onClick={() => signIn('github')}
+              className="size-12 rounded-full bg-white hover:bg-gray-200"
+            >
+              <Image
+                src="/github-logo.png"
+                alt="깃허브 로고"
+                width={24}
+                height={24}
+              />
+            </Button>
+
             <Button className="size-12 rounded-full bg-yellow-400 hover:bg-yellow-500">
               <Image
                 src="/kakao-logo.png"

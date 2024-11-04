@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
+import { signIn } from 'next-auth/react'
 
 import { verifyEmail, verifyCode, signup } from '@/app/signup/actions'
 import { Input } from '@/components/ui/input'
@@ -20,7 +21,6 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-
 type FormData = {
   email: string
   verificationCode: string
@@ -224,11 +224,23 @@ export default function SignupPage() {
           <div className="relative my-6 flex items-center">
             <Separator />
             <span className="absolute left-1/2 -translate-x-1/2 bg-white px-2 text-xs text-gray-500">
-              간편 회원가입
+              간편 로그인
             </span>
           </div>
 
           <div className="flex justify-center gap-4">
+            <Button
+              onClick={() => signIn('github')}
+              className="size-12 rounded-full bg-white hover:bg-gray-200"
+            >
+              <Image
+                src="/github-logo.png"
+                alt="깃허브 로고"
+                width={24}
+                height={24}
+              />
+            </Button>
+
             <Button className="size-12 rounded-full bg-yellow-400 hover:bg-yellow-500">
               <Image
                 src="/kakao-logo.png"

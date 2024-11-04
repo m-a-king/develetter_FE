@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
+import GitHub from 'next-auth/providers/github'
 import type { Provider } from 'next-auth/providers'
 import type { AdapterUser } from 'next-auth/adapters'
 
@@ -19,10 +20,10 @@ const providers: Provider[] = [
         id: "test",
         name: "Test User",
         email: "test@example.com",
-        token: '123456789',
       }
     }
-  })
+  }),
+  GitHub,
 ]
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -33,6 +34,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        user.token = '123456789'
+        user.subscriptions = {
+          jobNames: [],
+          locationNames: [],
+          jobTypeNames: [],
+          industryNames: [],
+          educationLevelNames: [],
+          blogKeywords: []
+        }
         token.user = user
       }
       return token
