@@ -3,6 +3,7 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSession } from 'next-auth/react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -25,9 +26,13 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-const defaultValues: Partial<ProfileFormValues> = {}
-
 export default function ProfileForm() {
+  const { data: session } = useSession()
+
+  const defaultValues: Partial<ProfileFormValues> = {
+    email: session?.user?.email || ''
+  }
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -61,6 +66,7 @@ export default function ProfileForm() {
                       placeholder="이메일"
                       type="email"
                       aria-label="이메일"
+                      defaultValue={defaultValues.email}
                       readOnly
                     />
                     <FormMessage />

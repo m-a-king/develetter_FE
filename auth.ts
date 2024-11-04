@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login'
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         user.token = '123456789'
         user.subscriptions = {
@@ -45,6 +45,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
         token.user = user
       }
+
+      if (trigger === "update" && session?.user) {
+        token.user = {
+          ...(token.user || {}),
+          subscriptions: session.user.subscriptions
+        }
+      }
+
       return token
     },
     async session({ session, token }) {

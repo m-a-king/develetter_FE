@@ -1,11 +1,12 @@
 'use client'
 
+import { useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 
-import useStore from '@/store/useStore'
 import { subscribe } from './actions'
 import { Button } from '@/components/ui/button'
 import { Toggle } from '@/components/ui/toggle'
@@ -200,7 +201,7 @@ const defaultValues: Partial<DisplayFormValues> = {
 }
 
 export default function SubscribeForm() {
-  const accessToken = useStore(state => state.accessToken)
+  const { data: session, update } = useSession()
 
   const form = useForm<DisplayFormValues>({
     resolver: zodResolver(displayFormSchema),
@@ -209,6 +210,14 @@ export default function SubscribeForm() {
 
   const { setValue, handleSubmit, watch } = form
   const selectedItems = watch()
+
+  useEffect(() => {
+    if (session?.user?.subscriptions) {
+      Object.entries(session.user.subscriptions).forEach(([key, value]) => {
+        setValue(key as keyof DisplayFormValues, value)
+      })
+    }
+  }, [session?.user?.subscriptions, setValue])
 
   const toggleItem = (categoryId: keyof DisplayFormValues, itemId: string) => {
     const currentItems = selectedItems[categoryId] || []
@@ -221,15 +230,13 @@ export default function SubscribeForm() {
 
   const onSubmit = async (data: DisplayFormValues) => {
     try {
-      if (!accessToken) return
-      const formattedData = Object.fromEntries(
-        Object.entries(data).map(([key, value]) => [
-          key,
-          value?.join(',') || ''
-        ])
-      )
-      const response = await subscribe(accessToken, formattedData)
-      toast.success(response.message)
+      await update({
+        user: {
+          ...session?.user,
+          subscriptions: selectedItems,
+        }
+      })
+      toast.success('구독 설정이 저장되었습니다.')
     } catch (error: any) {
       toast.error(error.message)
     }
