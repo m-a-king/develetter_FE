@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 export default function MainPage() {
   const handleSubscribeClick = () => {
-    window.location.href = '/mypage'
+    window.location.href = '/mypage/subscribe'
   }
 
   return (
