@@ -92,7 +92,6 @@ const categories = [
       { id: 'hourly-paid', label: '시급제' },
       { id: 'volunteer', label: '자원봉사' },
       { id: 'seasonal', label: '계절직' },
-      { id: 'permanent', label: '정규직' },
       { id: 'rotational', label: '순환 근무' },
       { id: 'fixed-term', label: '기간제' },
       { id: 'executive', label: '임원' },
